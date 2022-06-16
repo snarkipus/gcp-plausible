@@ -1,3 +1,11 @@
 config:
+  gcp-plausible:clickhouse-password:
+    secure: AAABADVBoHL5LypdOBABHaU793HX3Aw2SDa4k4Ldm0vPNgZFWYcsnbbqklfarJg=
+  gcp-plausible:clickhouse-user:
+    secure: AAABAFpmQTE6BPhOwgdAe+2+Mvzk+tRndGJTU8MFkscvdIwDyrspS5Qv
   gcp-plausible:gke-min-version: "1.22"
+  gcp-plausible:postgres-password:
+    secure: AAABAGbkGeyMnSaRp9tbQ2R7l1tX/KzoLf04Bd/z8n0l49xydZPCSOf9ecs=
+  gcp-plausible:postgres-user:
+    secure: AAABAJhksnJ5tQihokHuPGKpIcuVWmXtcQEil+UIZ0tzw3C1Pd2DmA==
   gcp:project: gcp-plausible
