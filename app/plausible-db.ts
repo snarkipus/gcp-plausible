@@ -1,8 +1,8 @@
 import * as kubernetes from "@pulumi/kubernetes";
 import { config } from './config';
 
-const postgresUser       = config.require("postgres-user");
-const postgresPassword   = config.require("postgres-password");
+const postgresUser     = config.require("postgres-user");
+const postgresPassword = config.require("postgres-password");
 
 const db_name = "plausible-db";
 const db_labels = {

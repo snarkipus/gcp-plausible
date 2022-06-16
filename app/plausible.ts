@@ -18,7 +18,7 @@ const plausibleSvc = new kubernetes.core.v1.Service("plausible-svc", {
         labels: app_labels,
     },
     spec: {
-        type: "LoadBalancer",
+        type: "ClusterIP",
         ports: [{
             name: "http",
             port: 8000,

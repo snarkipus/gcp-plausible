@@ -1,4 +1,8 @@
 config:
+  gcp-plausible:cfi-api-email:
+    secure: AAABAP79UVhfnbO9p6WyxBAmahsd/gB/7WUbpuHWa9dqVeTDHvnZoo+uh25ke96u5DvH
+  gcp-plausible:cfi-api-key:
+    secure: AAABAG1m8VItZxR0ZSh9g6v9NAcgyem/Pg4jbFlAlxjK2t8JV7wmlI/yChaZ+c1f0A/Ax0nSwlV8eMSwNlZrUKk4XhV6
   gcp-plausible:clickhouse-password:
     secure: AAABADVBoHL5LypdOBABHaU793HX3Aw2SDa4k4Ldm0vPNgZFWYcsnbbqklfarJg=
   gcp-plausible:clickhouse-user:
