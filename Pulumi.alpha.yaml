@@ -1,2 +1,3 @@
 config:
+  gcp-plausible:gke-min-version: "1.22"
   gcp:project: gcp-plausible
