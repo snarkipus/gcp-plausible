@@ -40,6 +40,9 @@ Self-hosted, privacy focused web analytics deployed to Kubernetes on the Google 
 
 ### Features
 - [Plausible Analytics](https://plausible.io/): lightweight and open source web analytics (no cookies) and fully compliant with GDPR, CCPA and PECR
+  - NOTE:
+    - SMTP server _not configured_
+    - MaxMind IP Geolocation _not configured_ (TODO) 
 - [Traefik Proxy](https://traefik.io/traefik/): leading modern reverse proxy and load balancer that makes deploying microservices easy
   - SSL Termination
   - [Cloudflare](https://www.cloudflare.com/) integration
@@ -57,6 +60,125 @@ Self-hosted, privacy focused web analytics deployed to Kubernetes on the Google 
 ## Getting Started
 
 ### Prerequisites
+- [Pulumi](https://www.pulumi.com/docs/get-started/install/)
+  ```bash
+  $ pulumi version
+  v3.34.1
+  ```
+- [Google Cloud SDK and Command Line Interface](https://cloud.google.com/sdk/docs/install)
+  ```bash
+  $ gcloud --version
+  Google Cloud SDK 390.0.0
+  alpha 2022.06.10
+  beta 2022.06.10
+  bq 2.0.75
+  bundled-python3-unix 3.9.12
+  core 2022.06.10
+  gsutil 5.10
+  ```
+- Configured Google Cloud Platform (GCP) project w/Google Kubernetes Engine (GKE) API enabled
+  ```bash
+  $ gcloud config list
+  [compute]
+  region = us-central1
+  [core]
+  account = someone@someplace.com
+  disable_usage_reporting = True
+  project = project-name-here
+  ```
+  ```bash
+  $ gcloud services list | grep Kubernetes
+  container.googleapis.com            Kubernetes Engine API  
+  ```
+- Node and Node Package Management (yarn or npm)
+  ```bash
+  $ node -v && npm -v && yarn -v
+  v16.14.0
+  8.12.1
+  1.22.19
+  ```
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Installation
+1. Clone the repo
+   ```bash
+   $ git clone https://github.com/snarkipus/gcp-plausible
+   ```
+2. Install the node package manager
+   ```bash
+   $ cd gcp-plausible && yarn install
+   ```
+### Build and Deploy the cluster (needs testing)
+NOTE: This works for me - someone who is 'not' me might need to figure out how pulumi handles things like secrets. Hopefully somebody will let me know if my cloudflare credentials are exposed ...
+1. Verify the pulumi configuration file
+   ```bash
+   $ pulumi config --show-secrets
+   Please choose a stack, or create a new one: alpha
+   KEY                  VALUE
+   gcp:project          project-name-here
+   cfi-api-email        someone@someplace.com
+   cfi-api-key          U5Mb9IROTUJ0btByIsMlkIuTxZ7qdFh4T7Ov
+   clickhouse-password  anotherpassword
+   clickhouse-user      clickhouse
+   gke-min-version      1.22
+   postgres-password    somepassword
+   postgres-user        postgres
+   ```
+   - Ensure that `project-name-here` matches the gcloud configuration
+   - `cfi-api-email` and `cfi-api-key` will need to be updated to match your cloudflare credentials
+2. Comment out all lines except `export * from './gcp/index';` in `index.ts` (we're only building the infrastructure)
+   NOTE: I'm sure there's an intelligent way to do this in one step - feel free to do smart things.
+3. Preview the configuration
+   ```bash
+   $ pulumi preview
+   ```
+4. If everything looks good, build the cluster (takes ~5 minutes)
+   ```bash
+   $ pulumi up
+   ```
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Deploy the applications
+NOTE: I did this in steps which may not (and most likely shouldn't be) necessary
+1. Get credentials to deploy the applications to the cluster
+   NOTE: I'm sure there's a way to programmatically do this - I just don't know it.
+   ```bash
+    gcloud container clusters get-credentials primary-alpha --zone=us-central1
+    ```
+2. Uncomment `export * from './app/plausible-db';` in `index.ts`
+3. Deploy `plausible-db` (postgres)
+   ```bash
+   $ pulumi update 
+   ```
+4. Once successful, uncomment  `export * from './app/plausible-events-db';`
+5. Deploy `plausible-events-db` (clickhouse) via `pulumi update`.
+6. Create your plausible-conf.env file (full details [here](https://plausible.io/docs/self-hosting-configuration) - [Example here](https://www.digitalocean.com/community/tutorials/how-to-install-plausible-analytics-on-ubuntu-20-04)):
+   ```env
+   ADMIN_USER_EMAIL=your_email_here
+   ADMIN_USER_NAME=admin_username
+   ADMIN_USER_PWD=admin_password
+   BASE_URL=https://your_domain_here
+   SECRET_KEY_BASE=paste_your_random_characters_here
+   ```
+7. Create kubernetes secret from the plausible-conf.env file
+   ```bash
+   $ kubectl create secret generic plausible-config --from-env-file=plausible-conf.env
+   ```
+8. Uncomment `export * from './app/plausible';` in `index.ts`
+9. Deploy the `plausible` application via `pulumi update`.
+   NOTE: this defaults to `ClusterIP` since I used Traefik as a reverse proxy/load balancer. If that isn't required, then you can change the type to `LoadBalancer` in `app/plausible.ts`.
+10. (Optional: Traefik w/Cloudflare Integration) Update the `cfi-api-email` and `cfi-api-key` to reflect your needs:
+    ```bash
+    $ pulumi config set --secret cfi-api-email someone@somewhere.com
+    $ pulumi config set --secret cfi-api-key long-hex-string-goes-here
+    ```
+11. (Optional: Traefik w/Cloudflare Integration) uncomment `export * from './app/traefik';` in `index.ts`
+12. (Optional: Traefik w/Cloudflare Integration) deploy Traefik via `pulumi update`
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Usage
+If everything went well, then you should have the applications deployed and your plausible analytics interface should be available at whatever subdomain you specified in your DNS settings (e.g. plausible.example.com). Just copy the javascript snippet into the head of your site and metrics should begin populating.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contributing
 
@@ -73,8 +195,6 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
@@ -89,8 +209,6 @@ Project Link: [https://github.com/snarkipus/gcp-plausible](https://github.com/sn
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 [contributors-shield]: https://img.shields.io/github/contributors/snarkipus/gcp-plausible.svg?style=for-the-badge
 [contributors-url]: https://github.com/snarkipus/gcp-plausible/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/snarkipus/gcp-plausible.svg?style=for-the-badge
@@ -103,4 +221,3 @@ Project Link: [https://github.com/snarkipus/gcp-plausible](https://github.com/sn
 [license-url]: https://github.com/snarkipus/gcp-plausible/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/snarkipus
-
