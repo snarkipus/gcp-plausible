@@ -75,16 +75,12 @@ Don't forget to give the project a star! Thanks again!
 
 
 
-<!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
-<!-- CONTACT -->
 ## Contact
 
 Matt Jackson - [@snarkipus](https://twitter.com/snarkipus) - matt@jacksonsix.com
@@ -104,7 +100,7 @@ Project Link: [https://github.com/snarkipus/gcp-plausible](https://github.com/sn
 [issues-shield]: https://img.shields.io/github/issues/snarkipus/gcp-plausible.svg?style=for-the-badge
 [issues-url]: https://github.com/snarkipus/gcp-plausible/issues
 [license-shield]: https://img.shields.io/github/license/snarkipus/gcp-plausible.svg?style=for-the-badge
-[license-url]: https://github.com/snarkipus/gcp-plausible/blob/master/LICENSE.txt
+[license-url]: https://github.com/snarkipus/gcp-plausible/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/snarkipus
 
